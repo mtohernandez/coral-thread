@@ -45,7 +45,11 @@ export const POST = async (request: Request) => {
 
   // Activitate Webhook in the Clerk Dashboard.
   // After adding the endpoint, you'll see the secret on the right side.
-  const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET || "");
+  if (!process.env.NEXT_CLERK_WEBHOOK_SECRET) {
+    return NextResponse.json({ message: "Webhook secret not configured" }, { status: 500 });
+  }
+
+  const wh = new Webhook(process.env.NEXT_CLERK_WEBHOOK_SECRET);
 
   let evnt: Event | null = null;
 

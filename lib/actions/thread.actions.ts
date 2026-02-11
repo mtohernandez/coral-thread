@@ -17,7 +17,7 @@ interface Params {
 
 export async function createThread({ text, author, communityId, path, image }: Params) {
   try {
-    connectToDB();
+    await connectToDB();
 
     // Resolve Clerk user ID to MongoDB _id
     const user = await User.findOne({ id: author });
@@ -64,7 +64,7 @@ async function fetchAllChildThreads(threadId: string): Promise<any[]> {
 
 export async function deleteThread(id: string, path: string): Promise<void> {
   try {
-    connectToDB();
+    await connectToDB();
 
     // Find the thread to be deleted (the main thread)
     const mainThread = await Thread.findById(id).populate("author community");
@@ -120,7 +120,7 @@ export async function deleteThread(id: string, path: string): Promise<void> {
 
 export async function fetchPosts(pageNumber = 1, pageSize = 20) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const skipAmount = pageSize * (pageNumber - 1);
 
@@ -159,7 +159,7 @@ export async function fetchPosts(pageNumber = 1, pageSize = 20) {
 }
 
 export async function fetchThreadById(threadId: string) {
-  connectToDB();
+  await connectToDB();
 
   try {
     const thread = await Thread.findById(threadId)
@@ -208,7 +208,7 @@ export async function addCommentToThread(
   path: string
 ) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const originalThread = await Thread.findById(threadId);
 

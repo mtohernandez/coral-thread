@@ -55,7 +55,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
     signIn.authenticateWithRedirect({
       strategy: "oauth_google",
       redirectUrl: "/sign-in/sso-callback",
-      redirectUrlComplete: "/",
+      redirectUrlComplete: "/home",
     });
   }
 

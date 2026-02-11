@@ -65,6 +65,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"form">
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         router.push("/onboarding");
+      } else {
+        setError("Verification incomplete. Please try again.");
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.longMessage || "Invalid verification code.");

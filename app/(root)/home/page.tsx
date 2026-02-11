@@ -5,6 +5,8 @@ import PostThread from "@/components/forms/PostThread";
 import { fetchUser } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const result = await fetchPosts(1, 30);
   const user = await currentUser();

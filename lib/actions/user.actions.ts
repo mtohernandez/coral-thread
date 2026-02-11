@@ -25,7 +25,7 @@ export async function updateUser({
   image,
 }: Params): Promise<void> {
   try {
-    connectToDB();
+    await connectToDB();
 
     await User.findOneAndUpdate(
       { id: userId },
@@ -49,7 +49,7 @@ export async function updateUser({
 
 export async function fetchUser(userId: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
     return await User.findOne({ id: userId });
   } catch (error: any) {
@@ -59,7 +59,7 @@ export async function fetchUser(userId: string) {
 
 export async function fetchUserPosts(userId: string, replies?: boolean) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const threads = await User.findOne({ id: userId }).populate({
       path: "threads",
@@ -101,7 +101,7 @@ export async function fetchUsers({
   sortBy: SortOrder;
 }) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const skipAmount = (pageNumber - 1) * pageSize;
 
@@ -149,7 +149,7 @@ export async function getActivity(userId: string) {
 
 export async function fetchLikeByUser(userId: string, threadId: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const user = await fetchUser(userId);
 
@@ -165,7 +165,7 @@ export async function fetchLikeByUser(userId: string, threadId: string) {
 
 export async function followUser(currentUserId: string, targetUserId: string, path: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const currentUser = await User.findOne({ id: currentUserId });
     const targetUser = await User.findOne({ id: targetUserId });
@@ -190,7 +190,7 @@ export async function followUser(currentUserId: string, targetUserId: string, pa
 
 export async function unfollowUser(currentUserId: string, targetUserId: string, path: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const currentUser = await User.findOne({ id: currentUserId });
     const targetUser = await User.findOne({ id: targetUserId });
@@ -218,7 +218,7 @@ export async function fetchFollowStatus(
   targetUserId: string
 ): Promise<boolean> {
   try {
-    connectToDB();
+    await connectToDB();
 
     const currentUser = await User.findOne({ id: currentUserId });
     const targetUser = await User.findOne({ id: targetUserId });
@@ -233,7 +233,7 @@ export async function fetchFollowStatus(
 
 export async function fetchUserWithFollowCounts(userId: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const user = await User.findOne({ id: userId });
 
@@ -254,7 +254,7 @@ export async function fetchUserWithFollowCounts(userId: string) {
 
 export async function likeThread(userId: string, threadId: string, path: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
     const user = await fetchUser(userId);
     const thread = await Thread.findById(threadId);
