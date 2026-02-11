@@ -30,11 +30,10 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
           <TabsList className="tab-list">
             {communityTabs.map((tab) => (
               <TabsTrigger key={tab.label} value={tab.value} className="tab-trigger">
-                <p className="max-sm:hidden">{tab.label}</p>
-
-                {tab.label === "Threads" && (
+                <p>{tab.label}</p>
+                {tab.label === "Threads" && communityDetails?.threads?.length > 0 && (
                   <p className="ml-1 rounded-sm bg-muted px-2 py-1 text-tiny-medium! text-foreground">
-                    {communityDetails?.threads?.length}
+                    {communityDetails.threads.length}
                   </p>
                 )}
               </TabsTrigger>

@@ -13,7 +13,7 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useThreadDialog } from "@/context/thread-dialog-context";
 import { useUploadThing } from "@/lib/uploadthing";
-import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../ui/dialog";
 import { VisuallyHidden } from "radix-ui";
 import { ImagePlus, Loader2, X } from "lucide-react";
 
@@ -25,6 +25,7 @@ function CreateThreadDialog() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { startUpload } = useUploadThing("media");
 
@@ -62,20 +63,24 @@ function CreateThreadDialog() {
   const handleClose = () => {
     form.reset();
     removeImage();
+    setError("");
     close();
   };
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
     if (!user?.id) return;
     setIsSubmitting(true);
+    setError("");
     try {
       let imageUrl = "";
 
       if (imageFile) {
         const uploadResult = await startUpload([imageFile]);
-        if (uploadResult && uploadResult[0]?.url) {
-          imageUrl = uploadResult[0].url;
+        if (!uploadResult || !uploadResult[0]?.url) {
+          setError("Image upload failed. Try again.");
+          return;
         }
+        imageUrl = uploadResult[0].url;
       }
 
       await createThread({
@@ -87,8 +92,8 @@ function CreateThreadDialog() {
       });
 
       handleClose();
-    } catch (error) {
-      console.error("Failed to create thread:", error);
+    } catch (err: any) {
+      setError(err?.message || "Failed to post thread. Try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,6 +106,7 @@ function CreateThreadDialog() {
       <DialogContent showCloseButton={false} className="sm:max-w-[525px] gap-0 p-0">
         <VisuallyHidden.Root>
           <DialogTitle>New thread</DialogTitle>
+          <DialogDescription>Create a new thread post</DialogDescription>
         </VisuallyHidden.Root>
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <button
@@ -192,6 +198,8 @@ function CreateThreadDialog() {
                 </div>
               </div>
             </div>
+
+            {error && <p className="px-5 pb-2 text-xs text-destructive">{error}</p>}
 
             <div className="flex items-center justify-between border-t border-border px-5 py-3">
               <span

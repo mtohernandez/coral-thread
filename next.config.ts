@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "uploadthing.com" },
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "utfs.io" },
+      { protocol: "https", hostname: "*.ufs.sh" },
     ],
   },
 };

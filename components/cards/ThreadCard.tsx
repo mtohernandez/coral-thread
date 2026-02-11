@@ -66,6 +66,7 @@ const ThreadCard = async ({
                 src={author.image}
                 alt="Profile image"
                 fill
+                sizes="36px"
                 className="cursor-pointer rounded-full object-cover"
               />
             </Link>
@@ -85,14 +86,14 @@ const ThreadCard = async ({
             <p className="mt-1 text-[15px] leading-snug text-foreground">{content}</p>
 
             {image && (
-              <div className="mt-2.5 rounded-lg overflow-hidden border border-border">
+              <div className="mt-2.5 max-w-sm rounded-lg overflow-hidden border border-border">
                 <Image
                   src={image}
                   alt="Thread image"
-                  width={480}
-                  height={320}
-                  sizes="(max-width: 640px) 100vw, 480px"
-                  className="w-full object-cover"
+                  width={384}
+                  height={256}
+                  sizes="(max-width: 640px) 100vw, 384px"
+                  className="w-full object-cover max-h-72"
                 />
               </div>
             )}

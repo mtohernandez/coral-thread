@@ -36,10 +36,10 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
           <TabsList className="tab-list">
             {profileTabs.map((tab) => (
               <TabsTrigger key={tab.label} value={tab.value} className="tab-trigger">
-                <p className="max-sm:hidden">{tab.label}</p>
-                {tab.label === "Threads" && (
+                <p>{tab.label}</p>
+                {tab.label === "Threads" && userInfo?.threads?.length > 0 && (
                   <p className="rounded-sm bg-muted px-2 py-1 text-tiny-medium! text-foreground">
-                    {userInfo?.threads?.length}
+                    {userInfo.threads.length}
                   </p>
                 )}
               </TabsTrigger>
