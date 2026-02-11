@@ -29,6 +29,7 @@ async function page({ params }: { params: Promise<{ id: string }> }) {
           community={thread.community}
           createdAt={thread.createdAt}
           likes={thread.likes.length}
+          reposts={thread.reposts?.length ?? 0}
           comments={thread.children}
           image={thread.image}
           isMain
@@ -41,22 +42,25 @@ async function page({ params }: { params: Promise<{ id: string }> }) {
         currentUserId={JSON.stringify(userInfo._id)}
       />
 
-      {thread.children.map((childItem: any) => (
-        <ThreadCard
-          key={childItem._id}
-          id={childItem._id}
-          currentUserId={user?.id || ""}
-          parentId={childItem.parentId}
-          content={childItem.text}
-          author={childItem.author}
-          community={childItem.community}
-          createdAt={childItem.createdAt}
-          likes={childItem.likes.length}
-          comments={childItem.children}
-          image={childItem.image}
-          isComment
-        />
-      ))}
+      <div className="flex flex-col sm:gap-3">
+        {thread.children.map((childItem: any) => (
+          <ThreadCard
+            key={childItem._id}
+            id={childItem._id}
+            currentUserId={user?.id || ""}
+            parentId={childItem.parentId}
+            content={childItem.text}
+            author={childItem.author}
+            community={childItem.community}
+            createdAt={childItem.createdAt}
+            likes={childItem.likes.length}
+            reposts={childItem.reposts?.length ?? 0}
+            comments={childItem.children}
+            image={childItem.image}
+            isComment
+          />
+        ))}
+      </div>
     </section>
   );
 }

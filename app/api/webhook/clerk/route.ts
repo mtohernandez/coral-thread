@@ -64,8 +64,7 @@ export const POST = async (request: Request) => {
   if (eventType === "organization.created") {
     // Resource: https://clerk.com/docs/reference/backend-api/tag/Organizations#operation/CreateOrganization
     // Show what evnt?.data sends from above resource
-    const { id, name, slug, logo_url, image_url, created_by } =
-      evnt?.data ?? {};
+    const { id, name, slug, logo_url, image_url, created_by } = evnt?.data ?? {};
 
     try {
       // @ts-ignore
@@ -82,10 +81,7 @@ export const POST = async (request: Request) => {
       return NextResponse.json({ message: "User created" }, { status: 201 });
     } catch (err) {
       console.log(err);
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
   }
 
@@ -97,17 +93,11 @@ export const POST = async (request: Request) => {
       // Resource: https://clerk.com/docs/reference/backend-api/tag/Organization-Invitations#operation/CreateOrganizationInvitation
       console.log("Invitation created", evnt?.data);
 
-      return NextResponse.json(
-        { message: "Invitation created" },
-        { status: 201 }
-      );
+      return NextResponse.json({ message: "Invitation created" }, { status: 201 });
     } catch (err) {
       console.log(err);
 
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
   }
 
@@ -122,17 +112,11 @@ export const POST = async (request: Request) => {
       // @ts-ignore
       await addMemberToCommunity(organization.id, public_user_data.user_id);
 
-      return NextResponse.json(
-        { message: "Invitation accepted" },
-        { status: 201 }
-      );
+      return NextResponse.json({ message: "Invitation accepted" }, { status: 201 });
     } catch (err) {
       console.log(err);
 
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
   }
 
@@ -151,10 +135,7 @@ export const POST = async (request: Request) => {
     } catch (err) {
       console.log(err);
 
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
   }
 
@@ -173,10 +154,7 @@ export const POST = async (request: Request) => {
     } catch (err) {
       console.log(err);
 
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
   }
 
@@ -191,17 +169,11 @@ export const POST = async (request: Request) => {
       // @ts-ignore
       await deleteCommunity(id);
 
-      return NextResponse.json(
-        { message: "Organization deleted" },
-        { status: 201 }
-      );
+      return NextResponse.json({ message: "Organization deleted" }, { status: 201 });
     } catch (err) {
       console.log(err);
 
-      return NextResponse.json(
-        { message: "Internal Server Error" },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
     }
   }
 };

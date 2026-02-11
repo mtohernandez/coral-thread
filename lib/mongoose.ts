@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { set, connect } from "mongoose";
 
@@ -17,7 +17,7 @@ export const connectToDB = async () => {
 
   try {
     await connect(process.env.MONGODB_URL, {
-      dbName: 'threads',
+      dbName: "threads",
     });
 
     isConnected = true; // Set the connection status to true

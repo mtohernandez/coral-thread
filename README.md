@@ -33,17 +33,20 @@ A full-stack social media application inspired by Threads, built with Next.js an
 ## Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd coral-thread
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Create a `.env.local` file based on `.env.example`:
+
    ```bash
    cp .env.example .env.local
    ```
@@ -57,12 +60,12 @@ A full-stack social media application inspired by Threads, built with Next.js an
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Create production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
+| Command         | Description              |
+| --------------- | ------------------------ |
+| `npm run dev`   | Start development server |
+| `npm run build` | Create production build  |
+| `npm run start` | Start production server  |
+| `npm run lint`  | Run ESLint               |
 
 ## Project Structure
 

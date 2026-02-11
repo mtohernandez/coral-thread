@@ -12,16 +12,14 @@ interface Props {
 const ThreadsTab = async ({ currentUserId, accountId, accountType }: Props) => {
   let result: any;
 
-  if (accountType === "Community")
-    result = await fetchCommunityPosts(accountId);
-  else if (accountType === "Replies")
-    result = await fetchUserPosts(accountId, true);
+  if (accountType === "Community") result = await fetchCommunityPosts(accountId);
+  else if (accountType === "Replies") result = await fetchUserPosts(accountId, true);
   else result = await fetchUserPosts(accountId);
 
-  if (!result) redirect("/");
+  if (!result) redirect("/home");
 
   return (
-    <section className="mt-9 flex flex-col">
+    <section className="mt-9 flex flex-col sm:gap-3">
       {result.threads.map((thread: any) => (
         <ThreadCard
           key={thread._id}
@@ -47,6 +45,8 @@ const ThreadsTab = async ({ currentUserId, accountId, accountType }: Props) => {
           community={thread.community}
           createdAt={thread.createdAt}
           comments={thread.children}
+          likes={thread.likes?.length ?? 0}
+          reposts={thread.reposts?.length ?? 0}
           image={thread.image}
         />
       ))}

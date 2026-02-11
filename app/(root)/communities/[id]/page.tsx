@@ -27,9 +27,9 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
 
       <div className="mt-9">
         <Tabs defaultValue="threads" className="w-full">
-          <TabsList className="tab">
+          <TabsList className="tab-list">
             {communityTabs.map((tab) => (
-              <TabsTrigger key={tab.label} value={tab.value} className="tab">
+              <TabsTrigger key={tab.label} value={tab.value} className="tab-trigger">
                 <p className="max-sm:hidden">{tab.label}</p>
 
                 {tab.label === "Threads" && (
@@ -41,35 +41,25 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
             ))}
           </TabsList>
 
-          <TabsContent value="threads" className="w-full text-foreground">
+          <TabsContent value="threads" className="tab-content w-full text-foreground">
             <ThreadsTab
               currentUserId={user.id}
               accountId={communityDetails.id}
-              accountType="User"
+              accountType="Community"
             />
           </TabsContent>
-          <TabsContent value="members" className="w-full text-foreground">
+          <TabsContent value="members" className="tab-content w-full text-foreground">
             <section className="mt-9 flex flex-col gap-10">
-                  {
-                    communityDetails?.members.map((member: any) => (
-                      <UserCard
-                        key={member.id}
-                        id={member.id}
-                        name={member.name}
-                        username={member.username}
-                        imgUrl={member.image}
-                        personType="User"
-                      />
-                    ))
-                  }
+              {communityDetails?.members.map((member: any) => (
+                <UserCard
+                  key={member.id}
+                  id={member.id}
+                  name={member.name}
+                  username={member.username}
+                  imgUrl={member.image}
+                />
+              ))}
             </section>
-          </TabsContent>
-          <TabsContent value="requests" className="w-full text-foreground">
-            <ThreadsTab
-              currentUserId={user.id}
-              accountId={communityDetails.id}
-              accountType="User"
-            />
           </TabsContent>
         </Tabs>
       </div>

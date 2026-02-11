@@ -12,6 +12,12 @@ const userSchema = new mongoose.Schema({
       ref: "Thread",
     },
   ],
+  repostedThreads: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Thread",
+    },
+  ],
   threads: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -42,6 +48,7 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-const User = mongoose.models.User || mongoose.model('User', userSchema);
+if (mongoose.models.User) mongoose.deleteModel("User");
+const User: mongoose.Model<any> = mongoose.model("User", userSchema);
 
 export default User;

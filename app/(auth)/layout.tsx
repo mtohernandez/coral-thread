@@ -10,20 +10,12 @@ export const metadata = {
 
 const outfit = Outfit({ subsets: ["latin"] });
 
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body className={outfit.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            themes={["light", "dark"]}
-          >
+          <ThemeProvider attribute="class" defaultTheme="dark" themes={["light", "dark"]}>
             {children}
           </ThemeProvider>
         </body>

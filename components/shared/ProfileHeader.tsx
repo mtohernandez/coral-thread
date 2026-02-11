@@ -46,9 +46,7 @@ const ProfileHeader = ({
             />
           </div>
           <div className="flex-1">
-            <h2 className="text-left text-heading3-bold text-foreground">
-              {name}
-            </h2>
+            <h2 className="text-left text-heading3-bold text-foreground">{name}</h2>
             <p className="text-base-medium text-muted-foreground">@{username}</p>
           </div>
         </div>
@@ -69,9 +67,7 @@ const ProfileHeader = ({
         )}
       </div>
 
-      {bio && (
-        <p className="mt-4 max-w-lg text-base-regular text-foreground">{bio}</p>
-      )}
+      {bio && <p className="mt-4 max-w-lg text-base-regular text-foreground">{bio}</p>}
 
       {type !== "Community" && (
         <div className="mt-4 flex items-center gap-4 text-small-medium text-muted-foreground">

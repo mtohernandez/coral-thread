@@ -25,6 +25,12 @@ const threadSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  reposts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   children: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -33,6 +39,7 @@ const threadSchema = new mongoose.Schema({
   ],
 });
 
-const Thread = mongoose.models.Thread || mongoose.model("Thread", threadSchema);
+if (mongoose.models.Thread) mongoose.deleteModel("Thread");
+const Thread: mongoose.Model<any> = mongoose.model("Thread", threadSchema);
 
 export default Thread;

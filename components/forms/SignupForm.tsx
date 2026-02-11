@@ -1,98 +1,91 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useSignUp } from "@clerk/nextjs"
-import Link from "next/link"
-import { Loader2 } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSignUp } from "@clerk/nextjs";
+import Link from "next/link";
+import { Loader2 } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
-export function SignupForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
-  const { isLoaded, signUp, setActive } = useSignUp()
-  const router = useRouter()
+export function SignupForm({ className, ...props }: React.ComponentProps<"form">) {
+  const { isLoaded, signUp, setActive } = useSignUp();
+  const router = useRouter();
 
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Verification phase
-  const [pendingVerification, setPendingVerification] = useState(false)
-  const [code, setCode] = useState("")
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [code, setCode] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!isLoaded) return
+    e.preventDefault();
+    if (!isLoaded) return;
 
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
 
     try {
       await signUp.create({
         emailAddress: email,
         password,
-      })
+      });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" })
-      setPendingVerification(true)
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      setPendingVerification(true);
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Something went wrong.")
+      setError(err.errors?.[0]?.longMessage || "Something went wrong.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function handleVerify(e: React.FormEvent) {
-    e.preventDefault()
-    if (!isLoaded) return
+    e.preventDefault();
+    if (!isLoaded) return;
 
-    setLoading(true)
-    setError("")
+    setLoading(true);
+    setError("");
 
     try {
-      const result = await signUp.attemptEmailAddressVerification({ code })
+      const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId })
-        router.push("/onboarding")
+        await setActive({ session: result.createdSessionId });
+        router.push("/onboarding");
       }
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage || "Invalid verification code.")
+      setError(err.errors?.[0]?.longMessage || "Invalid verification code.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   function handleGoogleOAuth() {
-    if (!isLoaded) return
+    if (!isLoaded) return;
     signUp.authenticateWithRedirect({
       strategy: "oauth_google",
       redirectUrl: "/sign-up/sso-callback",
       redirectUrlComplete: "/onboarding",
-    })
+    });
   }
 
   // ── Verification code UI ──
   if (pendingVerification) {
     return (
-      <form
-        className={cn("flex flex-col gap-6", className)}
-        onSubmit={handleVerify}
-        {...props}
-      >
+      <form className={cn("flex flex-col gap-6", className)} onSubmit={handleVerify} {...props}>
         <FieldGroup>
           <div className="flex flex-col items-center gap-1 text-center">
             <h1 className="text-2xl font-bold">Verify your email</h1>
@@ -102,9 +95,7 @@ export function SignupForm({
             </p>
           </div>
 
-          {error && (
-            <p className="text-destructive text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-destructive text-sm text-center">{error}</p>}
 
           <Field>
             <FieldLabel htmlFor="code">Verification Code</FieldLabel>
@@ -126,27 +117,18 @@ export function SignupForm({
           </Field>
         </FieldGroup>
       </form>
-    )
+    );
   }
 
   // ── Registration UI ──
   return (
-    <form
-      className={cn("flex flex-col gap-6", className)}
-      onSubmit={handleSubmit}
-      {...props}
-    >
+    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center">
-          <h1 className="text-2xl font-bold">Create your account</h1>
-          <p className="text-muted-foreground text-sm text-balance">
-            Enter your email below to get started
-          </p>
+          <h1 className="text-2xl font-bold">Get started</h1>
         </div>
 
-        {error && (
-          <p className="text-destructive text-sm text-center">{error}</p>
-        )}
+        {error && <p className="text-destructive text-sm text-center">{error}</p>}
 
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -181,11 +163,7 @@ export function SignupForm({
         <FieldSeparator>Or continue with</FieldSeparator>
 
         <Field>
-          <Button
-            variant="outline"
-            type="button"
-            onClick={handleGoogleOAuth}
-          >
+          <Button variant="outline" type="button" onClick={handleGoogleOAuth}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
@@ -216,5 +194,5 @@ export function SignupForm({
         </Field>
       </FieldGroup>
     </form>
-  )
+  );
 }

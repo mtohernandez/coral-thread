@@ -4,12 +4,12 @@ import { bottomBarLinks } from "@/constants";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-import { Home, Search, CirclePlus, Heart, User } from "lucide-react";
+import { Home, Users, CirclePlus, Heart, User } from "lucide-react";
 import { useThreadDialog } from "@/context/thread-dialog-context";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Home,
-  Search,
+  Users,
   CirclePlus,
   Heart,
   User,
@@ -25,8 +25,7 @@ function Bottombar() {
       <div className="bottombar_container">
         {bottomBarLinks.map((link) => {
           const isActive =
-            (pathname.includes(link.route) && link.route.length > 1) ||
-            pathname === link.route;
+            (pathname.includes(link.route) && link.route.length > 1) || pathname === link.route;
 
           const Icon = iconMap[link.icon];
 
@@ -42,8 +41,7 @@ function Bottombar() {
             );
           }
 
-          const href =
-            link.route === "/profile" ? `/profile/${user?.id}` : link.route;
+          const href = link.route === "/profile" ? `/profile/${user?.id}` : link.route;
 
           return (
             <Link

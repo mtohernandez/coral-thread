@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem } from "../ui/form";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ThreadValidation } from "@/lib/validations/thread";
@@ -14,12 +13,8 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { useThreadDialog } from "@/context/thread-dialog-context";
 import { useUploadThing } from "@/lib/uploadthing";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
+import { VisuallyHidden } from "radix-ui";
 import { ImagePlus, Loader2, X } from "lucide-react";
 
 function CreateThreadDialog() {
@@ -38,7 +33,7 @@ function CreateThreadDialog() {
     defaultValues: {
       thread: "",
       image: "",
-      accountId: user?.id || "",
+      accountId: "",
     },
   });
 
@@ -71,6 +66,7 @@ function CreateThreadDialog() {
   };
 
   const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    if (!user?.id) return;
     setIsSubmitting(true);
     try {
       let imageUrl = "";
@@ -84,7 +80,7 @@ function CreateThreadDialog() {
 
       await createThread({
         text: values.thread,
-        author: values.accountId,
+        author: user.id,
         communityId: organization ? organization.id : null,
         path: pathname,
         image: imageUrl,
@@ -102,100 +98,116 @@ function CreateThreadDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>New Thread</DialogTitle>
-        </DialogHeader>
+      <DialogContent showCloseButton={false} className="sm:max-w-[525px] gap-0 p-0">
+        <VisuallyHidden.Root>
+          <DialogTitle>New thread</DialogTitle>
+        </VisuallyHidden.Root>
+        <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Cancel
+          </button>
+          <h2 className="text-sm font-semibold text-foreground">New thread</h2>
+          <div className="w-10" />
+        </div>
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="flex gap-3">
-              <Image
-                src={user.imageUrl}
-                alt="Profile"
-                width={40}
-                height={40}
-                className="rounded-full object-cover h-10 w-10 shrink-0"
-              />
-              <FormField
-                control={form.control}
-                name="thread"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormControl>
-                      <Textarea
-                        placeholder="What's on your mind?"
-                        className="no-focus border-none bg-transparent resize-none min-h-[80px] text-foreground p-0"
-                        disabled={isSubmitting}
-                        {...field}
-                        onInput={(e) => {
-                          const target = e.target as HTMLTextAreaElement;
-                          target.style.height = "auto";
-                          target.style.height = target.scrollHeight + "px";
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="flex gap-3 px-5 pt-4 pb-3">
+              <div className="flex flex-col items-center gap-2">
+                <Image
+                  src={user.imageUrl}
+                  alt="Profile"
+                  width={36}
+                  height={36}
+                  className="rounded-full object-cover size-9 shrink-0"
+                />
+                <div className="thread-card_bar" />
+              </div>
+              <div className="flex-1 pt-0.5">
+                <p className="text-sm font-semibold text-foreground">
+                  {user.username ?? user.firstName}
+                </p>
+                <FormField
+                  control={form.control}
+                  name="thread"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <textarea
+                          placeholder="What's on your mind?"
+                          className="mt-1 w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+                          rows={3}
+                          disabled={isSubmitting}
+                          {...field}
+                          onInput={(e) => {
+                            const target = e.target as HTMLTextAreaElement;
+                            target.style.height = "auto";
+                            target.style.height = target.scrollHeight + "px";
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {imagePreview && (
+                  <div className="relative mt-2 rounded-xl overflow-hidden max-h-72">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      width={480}
+                      height={320}
+                      className="w-full object-cover rounded-xl"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
+                    >
+                      <X className="size-4" />
+                    </button>
+                  </div>
                 )}
-              />
+
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isSubmitting}
+                    className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                  >
+                    <ImagePlus className="size-5" />
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageSelect}
+                  />
+                </div>
+              </div>
             </div>
 
-            {imagePreview && (
-              <div className="relative rounded-xl overflow-hidden max-h-80">
-                <Image
-                  src={imagePreview}
-                  alt="Preview"
-                  width={480}
-                  height={320}
-                  className="w-full object-cover rounded-xl"
-                />
-                <button
-                  type="button"
-                  onClick={removeImage}
-                  className="absolute top-2 right-2 bg-background/80 rounded-full p-1 hover:bg-background"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-2 border-t border-border">
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isSubmitting}
-                >
-                  <ImagePlus className="size-5 text-muted-foreground" />
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageSelect}
-                />
-                <span
-                  className={`text-xs ${
-                    threadValue.length > 260
-                      ? "text-destructive"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  {threadValue.length}/280
-                </span>
-              </div>
+            <div className="flex items-center justify-between border-t border-border px-5 py-3">
+              <span
+                className={`text-xs ${
+                  threadValue.length > 260 ? "text-destructive" : "text-muted-foreground"
+                }`}
+              >
+                {threadValue.length}/280
+              </span>
               <Button
                 type="submit"
                 size="sm"
-                disabled={isSubmitting || threadValue.length < 3}
+                className="px-5"
+                disabled={isSubmitting || threadValue.length < 3 || !user?.id}
               >
-                {isSubmitting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  "Post"
-                )}
+                {isSubmitting ? <Loader2 className="size-4 animate-spin" /> : "Post"}
               </Button>
             </div>
           </form>

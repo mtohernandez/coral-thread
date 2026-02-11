@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import Thread from "../models/thread.model";
 import User from "../models/user.model";
 import Community from "../models/community.model";
+import Activity from "../models/activity.model";
 import { connectToDB } from "../mongoose";
 
 interface Params {
@@ -14,30 +15,25 @@ interface Params {
   image?: string;
 }
 
-export async function createThread({
-  text,
-  author,
-  communityId,
-  path,
-  image,
-}: Params) {
+export async function createThread({ text, author, communityId, path, image }: Params) {
   try {
     connectToDB();
 
-    const communityIdObject = await Community.findOne(
-      { id: communityId },
-      { _id: 1 }
-    );
+    // Resolve Clerk user ID to MongoDB _id
+    const user = await User.findOne({ id: author });
+    if (!user) throw new Error("User not found");
+
+    const communityIdObject = await Community.findOne({ id: communityId }, { _id: 1 });
 
     const createdThread = await Thread.create({
       text,
-      author,
+      author: user._id,
       community: communityIdObject,
       image: image || undefined,
     });
 
     // Update User model
-    await User.findByIdAndUpdate(author, {
+    await User.findByIdAndUpdate(user._id, {
       $push: { threads: createdThread._id },
     });
 
@@ -81,10 +77,7 @@ export async function deleteThread(id: string, path: string): Promise<void> {
     const descendantThreads = await fetchAllChildThreads(id);
 
     // Get all descendant thread IDs including the main thread ID and child thread IDs
-    const descendantThreadIds = [
-      id,
-      ...descendantThreads.map((thread) => thread._id),
-    ];
+    const descendantThreadIds = [id, ...descendantThreads.map((thread) => thread._id)];
 
     // Extract the authorIds and communityIds to update User and Community models respectively
     const uniqueAuthorIds = new Set(
@@ -103,6 +96,9 @@ export async function deleteThread(id: string, path: string): Promise<void> {
 
     // Recursively delete child threads and their descendants
     await Thread.deleteMany({ _id: { $in: descendantThreadIds } });
+
+    // Clean up Activity records for deleted threads
+    await Activity.deleteMany({ thread: { $in: descendantThreadIds } });
 
     // Update User model
     await User.updateMany(
@@ -231,6 +227,20 @@ export async function addCommentToThread(
     originalThread.children.push(savedCommentThread._id);
 
     await originalThread.save();
+
+    // Activity tracking — fire-and-forget
+    try {
+      if (userId !== originalThread.author.toString()) {
+        await Activity.create({
+          type: "reply",
+          user: userId,
+          thread: originalThread._id,
+          targetUser: originalThread.author,
+        });
+      }
+    } catch (e) {
+      console.error("Activity tracking (reply) failed:", e);
+    }
 
     revalidatePath(path);
   } catch (error: any) {

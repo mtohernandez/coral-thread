@@ -14,9 +14,7 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
   const userInfo = await fetchUserWithFollowCounts(id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const isFollowing = user.id !== id
-    ? await fetchFollowStatus(user.id, id)
-    : false;
+  const isFollowing = user.id !== id ? await fetchFollowStatus(user.id, id) : false;
 
   return (
     <section>
@@ -35,9 +33,9 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
 
       <div className="mt-9">
         <Tabs defaultValue="threads" className="w-full">
-          <TabsList className="tab p-0">
+          <TabsList className="tab-list">
             {profileTabs.map((tab) => (
-              <TabsTrigger key={tab.label} value={tab.value} className="tab">
+              <TabsTrigger key={tab.label} value={tab.value} className="tab-trigger">
                 <p className="max-sm:hidden">{tab.label}</p>
                 {tab.label === "Threads" && (
                   <p className="rounded-sm bg-muted px-2 py-1 text-tiny-medium! text-foreground">
@@ -48,19 +46,11 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
             ))}
           </TabsList>
 
-          <TabsContent value="threads" className="w-full text-foreground">
-            <ThreadsTab
-              currentUserId={user.id}
-              accountId={userInfo.id}
-              accountType="User"
-            />
+          <TabsContent value="threads" className="tab-content w-full text-foreground">
+            <ThreadsTab currentUserId={user.id} accountId={userInfo.id} accountType="User" />
           </TabsContent>
-          <TabsContent value="replies" className="w-full text-foreground">
-            <ThreadsTab
-              currentUserId={user.id}
-              accountId={userInfo.id}
-              accountType="Replies"
-            />
+          <TabsContent value="replies" className="tab-content w-full text-foreground">
+            <ThreadsTab currentUserId={user.id} accountId={userInfo.id} accountType="Replies" />
           </TabsContent>
         </Tabs>
       </div>

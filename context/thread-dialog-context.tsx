@@ -14,11 +14,7 @@ const ThreadDialogContext = createContext<ThreadDialogContextValue>({
   close: () => {},
 });
 
-export function ThreadDialogProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ThreadDialogProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const open = useCallback(() => setIsOpen(true), []);

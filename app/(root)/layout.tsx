@@ -18,25 +18,17 @@ export const metadata: Metadata = {
   description: "Share threads with anyone, anywhere.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <ReduxProvider>
         <html lang="en" suppressHydrationWarning>
           <body className={outfit.className}>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              themes={["light", "dark"]}
-            >
+            <ThemeProvider attribute="class" defaultTheme="dark" themes={["light", "dark"]}>
               <ThreadDialogProvider>
                 <Topbar />
 
-                <main className="mt-10">
+                <main className="mt-14">
                   <section className="main-container">
                     <div className="w-full max-w-4xl">{children}</div>
                   </section>

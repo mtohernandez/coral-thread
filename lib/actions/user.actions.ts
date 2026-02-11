@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import User from "../models/user.model";
 import { connectToDB } from "../mongoose";
 import Thread from "../models/thread.model";
+import Activity from "../models/activity.model";
 import { FilterQuery, SortOrder } from "mongoose";
 
 interface Params {
@@ -74,8 +75,6 @@ export async function fetchUserPosts(userId: string, replies?: boolean) {
       },
     });
 
-    
-
     if (replies) {
       threads.threads = threads.threads.reduce((acc: any, thread: any) => {
         return acc.concat(thread.children);
@@ -113,18 +112,12 @@ export async function fetchUsers({
     };
 
     if (searchString.trim() !== "") {
-      query.$or = [
-        { username: { $regex: regex } },
-        { name: { $regex: regex } },
-      ];
+      query.$or = [{ username: { $regex: regex } }, { name: { $regex: regex } }];
     }
 
     const sortOptions = { createdAt: sortBy };
 
-    const usersQuery = User.find(query)
-      .sort(sortOptions)
-      .skip(skipAmount)
-      .limit(pageSize);
+    const usersQuery = User.find(query).sort(sortOptions).skip(skipAmount).limit(pageSize);
 
     const totalUserCount = await User.countDocuments(query);
 
@@ -140,24 +133,15 @@ export async function fetchUsers({
 
 export async function getActivity(userId: string) {
   try {
-    connectToDB();
+    await connectToDB();
 
-    const userThreads = await Thread.find({ author: userId });
+    const activities = await Activity.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .populate({ path: "targetUser", model: User, select: "name image id" })
+      .populate({ path: "thread", model: Thread, select: "_id parentId text" });
 
-    const childThreadsIds = userThreads.reduce((acc, userThread) => {
-      return acc.concat(userThread.children);
-    }, []);
-
-    const replies = await Thread.find({
-      _id: { $in: childThreadsIds },
-      author: { $ne: userId },
-    }).populate({
-      path: "author",
-      model: User,
-      select: "name image _id",
-    });
-
-    return replies;
+    return activities;
   } catch (error: any) {
     throw new Error(`Failed to fetch activity: ${error.message}`);
   }
@@ -179,11 +163,7 @@ export async function fetchLikeByUser(userId: string, threadId: string) {
   }
 }
 
-export async function followUser(
-  currentUserId: string,
-  targetUserId: string,
-  path: string
-) {
+export async function followUser(currentUserId: string, targetUserId: string, path: string) {
   try {
     connectToDB();
 
@@ -208,11 +188,7 @@ export async function followUser(
   }
 }
 
-export async function unfollowUser(
-  currentUserId: string,
-  targetUserId: string,
-  path: string
-) {
+export async function unfollowUser(currentUserId: string, targetUserId: string, path: string) {
   try {
     connectToDB();
 
@@ -276,11 +252,7 @@ export async function fetchUserWithFollowCounts(userId: string) {
   }
 }
 
-export async function likeThread(
-  userId: string,
-  threadId: string,
-  path: string
-) {
+export async function likeThread(userId: string, threadId: string, path: string) {
   try {
     connectToDB();
 
@@ -293,12 +265,8 @@ export async function likeThread(
 
     let isLiked = thread.likes.includes(user._id);
 
-    console.log("isLiked", isLiked);
-
     if (isLiked) {
-      thread.likes = thread.likes.filter(
-        (like: any) => like.toString() !== user._id.toString()
-      );
+      thread.likes = thread.likes.filter((like: any) => like.toString() !== user._id.toString());
       user.likedThreads = user.likedThreads.filter(
         (likedThread: any) => likedThread.toString() !== thread._id.toString()
       );
@@ -310,13 +278,97 @@ export async function likeThread(
     }
 
     await thread.save();
-
     await user.save();
+
+    // Activity tracking — fire-and-forget so it never breaks the like
+    try {
+      if (!isLiked) {
+        await Activity.deleteOne({ type: "like", user: user._id, thread: thread._id });
+      } else if (user._id.toString() !== thread.author.toString()) {
+        await Activity.create({
+          type: "like",
+          user: user._id,
+          thread: thread._id,
+          targetUser: thread.author,
+        });
+      }
+    } catch (e) {
+      console.error("Activity tracking (like) failed:", e);
+    }
 
     revalidatePath(path);
 
     return isLiked;
   } catch (error: any) {
     throw new Error(`Failed to like thread: ${error.message}`);
+  }
+}
+
+export async function repostThread(userId: string, threadId: string, path: string) {
+  try {
+    await connectToDB();
+
+    const user = await fetchUser(userId);
+    const thread = await Thread.findById(threadId);
+
+    if (!thread || !user) {
+      throw new Error("Thread or user not found");
+    }
+
+    const reposts = thread.reposts ?? [];
+    const isReposted = reposts.some((id: any) => id.toString() === user._id.toString());
+
+    if (isReposted) {
+      await Thread.findByIdAndUpdate(threadId, {
+        $pull: { reposts: user._id },
+      });
+      await User.findByIdAndUpdate(user._id, {
+        $pull: { repostedThreads: thread._id },
+      });
+      try {
+        await Activity.deleteOne({ type: "repost", user: user._id, thread: thread._id });
+      } catch (e) {
+        console.error("Activity tracking (unrepost) failed:", e);
+      }
+    } else {
+      await Thread.findByIdAndUpdate(threadId, {
+        $addToSet: { reposts: user._id },
+      });
+      await User.findByIdAndUpdate(user._id, {
+        $addToSet: { repostedThreads: thread._id },
+      });
+      if (user._id.toString() !== thread.author.toString()) {
+        try {
+          await Activity.create({
+            type: "repost",
+            user: user._id,
+            thread: thread._id,
+            targetUser: thread.author,
+          });
+        } catch (e) {
+          console.error("Activity tracking (repost) failed:", e);
+        }
+      }
+    }
+
+    revalidatePath(path);
+
+    return !isReposted;
+  } catch (error: any) {
+    throw new Error(`Failed to repost thread: ${error.message}`);
+  }
+}
+
+export async function fetchRepostByUser(userId: string, threadId: string) {
+  try {
+    await connectToDB();
+
+    const user = await fetchUser(userId);
+    if (!user) return false;
+
+    const thread = await Thread.findOne({ _id: threadId, reposts: user._id });
+    return !!thread;
+  } catch (error: any) {
+    throw new Error(`Failed to fetch repost by user: ${error.message}`);
   }
 }
