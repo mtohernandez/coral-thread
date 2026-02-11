@@ -29,13 +29,13 @@ function CommunityCard({ id, name, username, imgUrl, bio, members }: Props) {
 
         <div>
           <Link href={`/communities/${id}`}>
-            <h4 className='text-base-semibold text-light-1'>{name}</h4>
+            <h4 className='text-base-semibold text-foreground'>{name}</h4>
           </Link>
-          <p className='text-small-medium text-gray-1'>@{username}</p>
+          <p className='text-small-medium text-muted-foreground'>@{username}</p>
         </div>
       </div>
 
-      <p className='mt-4 text-subtle-medium text-gray-1'>{bio}</p>
+      <p className='mt-4 text-subtle-medium text-muted-foreground'>{bio}</p>
 
       <div className='mt-5 flex flex-wrap items-center justify-between gap-3'>
         <Link href={`/communities/${id}`}>
@@ -59,7 +59,7 @@ function CommunityCard({ id, name, username, imgUrl, bio, members }: Props) {
               />
             ))}
             {members.length > 3 && (
-              <p className='ml-1 text-subtle-medium text-gray-1'>
+              <p className='ml-1 text-subtle-medium text-muted-foreground'>
                 {members.length}+ Users
               </p>
             )}

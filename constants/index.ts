@@ -1,14 +1,9 @@
 export const bottomBarLinks = [
-  {
-    imgURL: "/assets/home.svg",
-    route: "/",
-    label: "Home",
-  },
-  {
-    imgURL: "/assets/user.svg",
-    route: "/profile",
-    label: "Profile",
-  },
+  { icon: "Home", route: "/", label: "Home" },
+  { icon: "Search", route: "/search", label: "Search" },
+  { icon: "CirclePlus", route: "create", label: "Create" },
+  { icon: "Heart", route: "/activity", label: "Activity" },
+  { icon: "User", route: "/profile", label: "Profile" },
 ];
 
 export const profileTabs = [

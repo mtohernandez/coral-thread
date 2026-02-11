@@ -57,24 +57,17 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
   ) => {
     e.preventDefault();
 
-    // File reader creation
     const fileReader = new FileReader();
 
-    // Check it has files
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
 
-      // Set files state
       setFiles(Array.from(e.target.files));
 
-      // Check if it is an image
       if (!file.type.includes("image")) return;
 
-      // Read file
       fileReader.onload = async (event) => {
         const imageDataUrl = event.target?.result?.toString() || "";
-
-        // Set image state
         fieldChange(imageDataUrl);
       };
 
@@ -162,7 +155,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name="name"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3 w-full">
-              <FormLabel className="text-base-semibold text-light-2">
+              <FormLabel className="text-base-semibold text-foreground">
                 Name
               </FormLabel>
               <FormControl>
@@ -182,7 +175,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name="username"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3 w-full">
-              <FormLabel className="text-base-semibold text-light-2">
+              <FormLabel className="text-base-semibold text-foreground">
                 Username
               </FormLabel>
               <FormControl>
@@ -202,7 +195,7 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           name="bio"
           render={({ field }) => (
             <FormItem className="flex flex-col gap-3 w-full">
-              <FormLabel className="text-base-semibold text-light-2">
+              <FormLabel className="text-base-semibold text-foreground">
                 Bio
               </FormLabel>
               <FormControl>
@@ -217,8 +210,8 @@ const AccountProfile = ({ user, btnTitle }: Props) => {
           )}
         />
 
-        <Button type="submit" className="bg-primary-500">
-          Submit
+        <Button type="submit" className="bg-primary">
+          {btnTitle}
         </Button>
       </form>
     </Form>

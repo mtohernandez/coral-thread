@@ -11,6 +11,7 @@ interface Params {
   author: string;
   communityId: string | null;
   path: string;
+  image?: string;
 }
 
 export async function createThread({
@@ -18,6 +19,7 @@ export async function createThread({
   author,
   communityId,
   path,
+  image,
 }: Params) {
   try {
     connectToDB();
@@ -30,7 +32,8 @@ export async function createThread({
     const createdThread = await Thread.create({
       text,
       author,
-      community: communityIdObject, // Assign communityId if provided, or leave it null for personal account
+      community: communityIdObject,
+      image: image || undefined,
     });
 
     // Update User model

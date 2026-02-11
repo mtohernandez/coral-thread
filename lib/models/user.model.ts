@@ -18,6 +18,18 @@ const userSchema = new mongoose.Schema({
       ref: "Thread",
     },
   ],
+  followers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  following: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   onboarded: {
     type: Boolean,
     default: false,

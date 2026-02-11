@@ -4,16 +4,14 @@ import ThreadsTab from "@/components/shared/ThreadsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { communityTabs } from "@/constants";
 import { fetchCommunityDetails } from "@/lib/actions/community.actions";
-import { fetchUser } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-import { memo } from "react";
 
-async function Page({ params }: { params: { id: string } }) {
+async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const user = await currentUser();
   if (!user) return null;
 
-  const communityDetails = await fetchCommunityDetails(params.id);
+  const communityDetails = await fetchCommunityDetails(id);
 
   return (
     <section>
@@ -35,7 +33,7 @@ async function Page({ params }: { params: { id: string } }) {
                 <p className="max-sm:hidden">{tab.label}</p>
 
                 {tab.label === "Threads" && (
-                  <p className="ml-1 rounded-sm bg-light-4 px-2 py-1 !text-tiny-medium text-light-2">
+                  <p className="ml-1 rounded-sm bg-muted px-2 py-1 text-tiny-medium! text-foreground">
                     {communityDetails?.threads?.length}
                   </p>
                 )}
@@ -43,14 +41,14 @@ async function Page({ params }: { params: { id: string } }) {
             ))}
           </TabsList>
 
-          <TabsContent value="threads" className="w-full text-light-1">
+          <TabsContent value="threads" className="w-full text-foreground">
             <ThreadsTab
               currentUserId={user.id}
               accountId={communityDetails.id}
               accountType="User"
             />
           </TabsContent>
-          <TabsContent value="members" className="w-full text-light-1">
+          <TabsContent value="members" className="w-full text-foreground">
             <section className="mt-9 flex flex-col gap-10">
                   {
                     communityDetails?.members.map((member: any) => (
@@ -66,7 +64,7 @@ async function Page({ params }: { params: { id: string } }) {
                   }
             </section>
           </TabsContent>
-          <TabsContent value="requests" className="w-full text-light-1">
+          <TabsContent value="requests" className="w-full text-foreground">
             <ThreadsTab
               currentUserId={user.id}
               accountId={communityDetails.id}

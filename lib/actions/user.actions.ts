@@ -179,6 +179,103 @@ export async function fetchLikeByUser(userId: string, threadId: string) {
   }
 }
 
+export async function followUser(
+  currentUserId: string,
+  targetUserId: string,
+  path: string
+) {
+  try {
+    connectToDB();
+
+    const currentUser = await User.findOne({ id: currentUserId });
+    const targetUser = await User.findOne({ id: targetUserId });
+
+    if (!currentUser || !targetUser) {
+      throw new Error("User not found");
+    }
+
+    await User.findByIdAndUpdate(currentUser._id, {
+      $addToSet: { following: targetUser._id },
+    });
+
+    await User.findByIdAndUpdate(targetUser._id, {
+      $addToSet: { followers: currentUser._id },
+    });
+
+    revalidatePath(path);
+  } catch (error: any) {
+    throw new Error(`Failed to follow user: ${error.message}`);
+  }
+}
+
+export async function unfollowUser(
+  currentUserId: string,
+  targetUserId: string,
+  path: string
+) {
+  try {
+    connectToDB();
+
+    const currentUser = await User.findOne({ id: currentUserId });
+    const targetUser = await User.findOne({ id: targetUserId });
+
+    if (!currentUser || !targetUser) {
+      throw new Error("User not found");
+    }
+
+    await User.findByIdAndUpdate(currentUser._id, {
+      $pull: { following: targetUser._id },
+    });
+
+    await User.findByIdAndUpdate(targetUser._id, {
+      $pull: { followers: currentUser._id },
+    });
+
+    revalidatePath(path);
+  } catch (error: any) {
+    throw new Error(`Failed to unfollow user: ${error.message}`);
+  }
+}
+
+export async function fetchFollowStatus(
+  currentUserId: string,
+  targetUserId: string
+): Promise<boolean> {
+  try {
+    connectToDB();
+
+    const currentUser = await User.findOne({ id: currentUserId });
+    const targetUser = await User.findOne({ id: targetUserId });
+
+    if (!currentUser || !targetUser) return false;
+
+    return currentUser.following.includes(targetUser._id);
+  } catch (error: any) {
+    throw new Error(`Failed to fetch follow status: ${error.message}`);
+  }
+}
+
+export async function fetchUserWithFollowCounts(userId: string) {
+  try {
+    connectToDB();
+
+    const user = await User.findOne({ id: userId });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return {
+      ...user.toObject(),
+      followersCount: user.followers?.length || 0,
+      followingCount: user.following?.length || 0,
+      threadsCount: user.threads?.length || 0,
+    };
+  } catch (error: any) {
+    throw new Error(`Failed to fetch user with follow counts: ${error.message}`);
+  }
+}
+
 export async function likeThread(
   userId: string,
   threadId: string,

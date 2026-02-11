@@ -1,21 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import * as z from "zod";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { CommentValidation } from "@/lib/validations/thread";
 import { Input } from "../ui/input";
@@ -69,7 +66,7 @@ const Comment = ({ threadId, currentUserImg, currentUserId }: Props) => {
                 <Input
                   type="text"
                   placeholder="Comment..."
-                  className="no-focus text-dark-1 outline-none"
+                  className="no-focus text-foreground outline-none"
                   {...field}
                 />
               </FormControl>

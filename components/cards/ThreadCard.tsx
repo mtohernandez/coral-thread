@@ -1,8 +1,7 @@
-import { formatDateString } from "@/lib/utils";
+import { formatRelativeTime } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { fetchLikeByUser, likeThread } from "@/lib/actions/user.actions";
+import { fetchLikeByUser } from "@/lib/actions/user.actions";
 import ThreadsActions from "../thread/ThreadActions";
 import PopupThread from "../thread/PopupThread";
 
@@ -29,6 +28,7 @@ interface Props {
     };
   }[];
   likes?: number;
+  image?: string;
   isComment?: boolean;
   isMain?: boolean;
 }
@@ -42,6 +42,7 @@ const ThreadCard = async ({
   community,
   createdAt,
   likes,
+  image,
   comments,
   isComment,
   isMain,
@@ -51,7 +52,7 @@ const ThreadCard = async ({
   return (
     <article
       className={`flex w-full flex-col py-7 ${isComment && "px-0 xs:px-7"} ${
-        isMain ? "border-b border-b-gray-300" : "border-t border-t-neutral-300"
+        isMain ? "border-b border-border" : "border-t border-border"
       }`}
     >
       <div className="flex items-start justify-between">
@@ -68,13 +69,36 @@ const ThreadCard = async ({
             <div className="thread-card_bar" />
           </div>
           <div className="flex w-full flex-col">
-            <h4 className="text-base-semibold text-dark-1">{author.name}</h4>
-            <Link href={`/profile/${author.id}`} className="w-fit">
-              <h4 className="cursor-pointer text-base-medium text-gray-1">
-                @{author.username}
-              </h4>
-            </Link>
-            <p className="mt-2 text-small-regular text-dark-1">{content}</p>
+            <div className="flex items-center gap-1">
+              <Link href={`/profile/${author.id}`}>
+                <h4 className="text-base-semibold text-foreground">
+                  {author.name}
+                </h4>
+              </Link>
+              <Link href={`/profile/${author.id}`}>
+                <span className="text-small-medium text-muted-foreground">
+                  @{author.username}
+                </span>
+              </Link>
+              <span className="text-small-medium text-muted-foreground">
+                · {formatRelativeTime(createdAt)}
+              </span>
+            </div>
+            <p className="mt-2 text-small-regular text-foreground">{content}</p>
+
+            {image && (
+              <div className="mt-3 rounded-xl overflow-hidden max-h-80 bg-muted">
+                <Image
+                  src={image}
+                  alt="Thread image"
+                  width={480}
+                  height={320}
+                  sizes="(max-width: 640px) 100vw, 480px"
+                  className="w-full object-cover transition-opacity duration-300"
+                />
+              </div>
+            )}
+
             <div className="mt-5 flex flex-col gap-3">
               <ThreadsActions
                 currentUserId={currentUserId}
@@ -83,7 +107,7 @@ const ThreadCard = async ({
               />
               <div className="flex items-center gap-3.5">
                 {likes && likes > 0 ? (
-                  <p className="text-small-regular text-gray-1">
+                  <p className="text-small-regular text-muted-foreground">
                     {likes} likes
                   </p>
                 ) : (
@@ -91,7 +115,7 @@ const ThreadCard = async ({
                 )}
                 {comments.length > 0 && (
                   <Link href={`/thread/${id}`}>
-                    <p className="text-small-regular text-gray-1">
+                    <p className="text-small-regular text-muted-foreground">
                       {comments.length} replies
                     </p>
                   </Link>
@@ -100,6 +124,11 @@ const ThreadCard = async ({
             </div>
           </div>
         </div>
+        <PopupThread
+          threadId={id.toString()}
+          currentUserId={currentUserId}
+          authorId={author.id}
+        />
       </div>
 
       {!isComment && community && (
@@ -107,8 +136,8 @@ const ThreadCard = async ({
           href={`/communities/${community.id}`}
           className="mt-5 flex items-center"
         >
-          <p className="text-subtle-medium text-gray-1">
-            {formatDateString(createdAt)} - {community.name} Community
+          <p className="text-subtle-medium text-muted-foreground">
+            {formatRelativeTime(createdAt)} - {community.name} Community
           </p>
 
           <Image

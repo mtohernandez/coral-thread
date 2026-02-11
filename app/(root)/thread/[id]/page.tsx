@@ -5,8 +5,9 @@ import { fetchUser } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-async function page({ params }: { params: { id: string } }) {
-  if (!params.id) return null;
+async function page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  if (!id) return null;
 
   const user = await currentUser();
   if (!user) return null;
@@ -14,7 +15,7 @@ async function page({ params }: { params: { id: string } }) {
   const userInfo = await fetchUser(user.id);
   if (!userInfo?.onboarded) redirect("/onboarding");
 
-  const thread = await fetchThreadById(params.id);
+  const thread = await fetchThreadById(id);
 
   return (
     <section className="relative">
@@ -29,6 +30,7 @@ async function page({ params }: { params: { id: string } }) {
           createdAt={thread.createdAt}
           likes={thread.likes.length}
           comments={thread.children}
+          image={thread.image}
           isMain
         />
       </div>
@@ -51,6 +53,7 @@ async function page({ params }: { params: { id: string } }) {
           createdAt={childItem.createdAt}
           likes={childItem.likes.length}
           comments={childItem.children}
+          image={childItem.image}
           isComment
         />
       ))}

@@ -2,16 +2,21 @@ import ProfileHeader from "@/components/shared/ProfileHeader";
 import ThreadsTab from "@/components/shared/ThreadsTab";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { profileTabs } from "@/constants";
-import { fetchUser } from "@/lib/actions/user.actions";
+import { fetchFollowStatus, fetchUserWithFollowCounts } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-async function Page({ params }: { params: { id: string } }) {
+async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const user = await currentUser();
   if (!user) return null;
 
-  const userInfo = await fetchUser(params.id);
+  const userInfo = await fetchUserWithFollowCounts(id);
   if (!userInfo?.onboarded) redirect("/onboarding");
+
+  const isFollowing = user.id !== id
+    ? await fetchFollowStatus(user.id, id)
+    : false;
 
   return (
     <section>
@@ -22,6 +27,10 @@ async function Page({ params }: { params: { id: string } }) {
         username={userInfo.username}
         imgUrl={userInfo.image}
         bio={userInfo.bio}
+        followersCount={userInfo.followersCount}
+        followingCount={userInfo.followingCount}
+        threadsCount={userInfo.threadsCount}
+        isFollowing={isFollowing}
       />
 
       <div className="mt-9">
@@ -31,7 +40,7 @@ async function Page({ params }: { params: { id: string } }) {
               <TabsTrigger key={tab.label} value={tab.value} className="tab">
                 <p className="max-sm:hidden">{tab.label}</p>
                 {tab.label === "Threads" && (
-                  <p className="rounded-sm bg-light-2 px-2 py-1 !text-tiny-medium text-dark-2">
+                  <p className="rounded-sm bg-muted px-2 py-1 text-tiny-medium! text-foreground">
                     {userInfo?.threads?.length}
                   </p>
                 )}
@@ -39,22 +48,19 @@ async function Page({ params }: { params: { id: string } }) {
             ))}
           </TabsList>
 
-          <TabsContent value="threads" className="w-full text-light-1">
+          <TabsContent value="threads" className="w-full text-foreground">
             <ThreadsTab
               currentUserId={user.id}
               accountId={userInfo.id}
               accountType="User"
             />
           </TabsContent>
-          <TabsContent value="replies" className="w-full text-light-1">
+          <TabsContent value="replies" className="w-full text-foreground">
             <ThreadsTab
               currentUserId={user.id}
               accountId={userInfo.id}
               accountType="Replies"
             />
-          </TabsContent>
-          <TabsContent value="tagged" className="w-full text-light-1">
-            Tagged
           </TabsContent>
         </Tabs>
       </div>

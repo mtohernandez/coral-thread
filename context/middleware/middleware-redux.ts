@@ -1,9 +1,9 @@
 import { fetchUser, fetchUserPosts } from "@/lib/actions/user.actions";
-import { Middleware } from "redux";
+import type { Middleware } from "@reduxjs/toolkit";
 import { updateUserRedux } from "../features/user-slice";
 
 export const logger: Middleware =
-  (storeAPI) => (dispatch) => async (action) => {
+  (storeAPI) => (dispatch) => async (action: any) => {
     const result = await dispatch(action);
 
     if (action.type === "user/updateUserIdRedux") {

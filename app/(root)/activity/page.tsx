@@ -1,4 +1,4 @@
-import { fetchUser, fetchUsers, getActivity } from "@/lib/actions/user.actions";
+import { fetchUser, getActivity } from "@/lib/actions/user.actions";
 import { currentUser } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,8 +29,8 @@ async function Page() {
                     height={20}
                     className="rounded-full object-cover"
                   />
-                  <p className="!text-small-regulat text-light-1">
-                    <span className="mr-1 text-primary-500">
+                  <p className="text-small-regular! text-foreground">
+                    <span className="mr-1 text-primary">
                       {activity.author.name}
                     </span>{" "}
                     replied to your thread!
@@ -40,7 +40,7 @@ async function Page() {
             ))}
           </>
         ) : (
-          <p className="!text-base-regular text-light-3">No activity found</p>
+          <p className="text-base-regular! text-muted-foreground">No activity found</p>
         )}
       </section>
     </section>
